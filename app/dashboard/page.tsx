@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { KanbanBoard } from "@/components/todos/kanban-board";
@@ -14,18 +15,28 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-  const canCreate = session.user.role === "USER";
+  // Get user with role from database
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, name: true, email: true, role: true },
+  });
+
+  if (!user) {
+    redirect("/");
+  }
+
+  const canCreate = user.role === "USER";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="container mx-auto p-6 space-y-6">
         <DashboardHeader 
-          userName={session.user.name} 
-          userRole={session.user.role as string}
+          userName={user.name} 
+          userRole={user.role}
           canCreate={canCreate}
         />
 
-        <KanbanBoard currentUserId={session.user.id} currentUserRole={session.user.role as string} />
+        <KanbanBoard currentUserId={user.id} currentUserRole={user.role} />
       </div>
     </div>
   );

@@ -304,7 +304,8 @@ export function KanbanBoard({
       {editingTodo && (
         <EditTodoDialog
           todo={editingTodo}
-          onClose={() => setEditingTodo(null)}
+          open={!!editingTodo}
+          onOpenChange={(open) => !open && setEditingTodo(null)}
         />
       )}
     </>

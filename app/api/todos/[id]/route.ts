@@ -20,6 +20,19 @@ export async function GET(
       );
     }
 
+    // Get user with role from database
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, role: true },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 401 }
+      );
+    }
+
     const todo = await prisma.todo.findUnique({
       where: { id },
       include: {
@@ -42,7 +55,7 @@ export async function GET(
     }
 
     const canView = ABACService.canViewTodo(
-      { id: session.user.id, role: session.user.role as string },
+      { id: user.id, role: user.role },
       todo
     );
 

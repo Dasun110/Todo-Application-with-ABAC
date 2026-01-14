@@ -42,12 +42,12 @@ export function RegisterForm() {
         name,
       });
 
-      // Update user role via API
-      if (response?.user?.id) {
+      // Update user role via API if signup was successful
+      if (response && typeof response === "object" && "user" in response && (response as any)?.user?.id) {
         const roleRes = await fetch("/api/users/update-role", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: response.user.id, role }),
+          body: JSON.stringify({ userId: (response as any).user.id, role }),
         });
 
         if (!roleRes.ok) {
