@@ -36,12 +36,24 @@ export function RegisterForm() {
     setIsLoading(true);
 
     try {
-      await signUp.email({
+      const response = await signUp.email({
         email,
         password,
         name,
-        role,
       });
+
+      // Update user role via API
+      if (response?.user?.id) {
+        const roleRes = await fetch("/api/users/update-role", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: response.user.id, role }),
+        });
+
+        if (!roleRes.ok) {
+          throw new Error("Failed to set user role");
+        }
+      }
 
       toast({
         title: "Success",
